@@ -17,14 +17,14 @@ app = Flask(__name__)
 
 def get_creds() -> list:
     if not os.path.exists("zoho-cred.txt"):
-        id = os.getenv("ZOHO_CLIENT_ID")
+        zid = os.getenv("ZOHO_CLIENT_ID")
         secret = os.getenv("ZOHO_CLIENT_SECRET")
     else:
         with open(CRED_FILE, 'r') as cred:
-            id, secret = cred.readlines()
-        id = id.strip()
+            zid, secret = cred.readlines()
+        zid = zid.strip()
         secret = secret.strip()
-    return id, secret
+    return zid, secret
 
 
 def save_to_file(txt):

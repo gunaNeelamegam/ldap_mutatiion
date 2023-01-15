@@ -11,10 +11,10 @@ BASE_URL = "https://www.zohoapis.in/workdrive"
 
 def get_creds(cred_file) -> list:
     with open(cred_file, 'r') as cred:
-        id, secret = cred.readlines()
-    id = id.strip()
+        zid, secret = cred.readlines()
+    zid = zid.strip()
     secret = secret.strip()
-    return id,secret
+    return zid,secret
 
 
 def get_refresh_token(token_file) -> str:
