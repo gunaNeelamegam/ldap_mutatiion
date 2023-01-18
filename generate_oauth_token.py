@@ -37,7 +37,6 @@ def generate_token(code, redirect_uri):
     client_id, client_secret = get_creds()
     auth_token_url = f"https://accounts.zoho.in/oauth/v2/token?code={code}&client_secret={client_secret}&redirect_uri={redirect_uri}&grant_type=authorization_code&client_id={client_id}"
     resp = requests.request("POST", auth_token_url)
-    # print(resp.text)
     save_to_file(resp.text)
     return True
 
@@ -63,7 +62,6 @@ def callback(all_routes):
     code_resp = code_resp.to_dict(flat=False)
     if code_resp.get('code'):
         code = code_resp['code'][0]
-        # print(code)
         if generate_token(code, REDIRECT_URI):
             return "File saved "
     return "NOT GENERATED"
