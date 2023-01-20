@@ -51,6 +51,10 @@ def get_zuid(header):
         return "GET_ZUID_FAILED"
 
 
+def scan_all_folders():
+    pass
+
+
 def get_org_id(zuid, header):
     url = f"{BASE_URL}/api/v1/users/{zuid}/teams"
     resp = request("GET", url, headers=header)
@@ -84,9 +88,10 @@ def list_team_folders(team_id, header):
         team_folders[name] = id
     return team_folders
 
-def search_team_folder(team_id, query, header):
+
+def search_team_folder(org_id,team_id, query, header):
     search_type = ["all", "name", "content"]
-    url = f"{BASE_URL}/api/v1/teams/{team_id}/records?search[{search_type[1]}]={query}"
+    url = f"{BASE_URL}/api/v1/teams/{org_id}/records?search[all]={query}&filter[teamFolder]={team_id}"
     resp = request("GET", url, headers=header)
     if resp.ok:
         print(resp.text)
@@ -172,5 +177,5 @@ if __name__ == "__main__":
     # print(f"Folder ID : {folder_id}")
 
     print("searching folder")
-    search_resp = search_team_folder(team_id,"test",auth_header)
+    search_resp = search_team_folder(org_id, team_id, "name", auth_header)
     print(f"Folder ID : {search_resp}")
