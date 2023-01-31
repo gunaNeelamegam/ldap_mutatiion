@@ -1,10 +1,8 @@
 """Generate offline Token for Workdrive API"""
+import os
+import requests
 
 from flask import Flask, request
-
-import os
-import sys
-import requests
 
 
 TOKEN_FILE = "zoho-token.json" # output file
@@ -15,12 +13,13 @@ SCOPES = "ZohoSearch.securesearch.READ,WorkDrive.team.CREATE,WorkDrive.team.READ
 
 app = Flask(__name__)
 
-def get_creds() -> list:
-    if not os.path.exists("zoho-cred.txt"):
+def get_creds() -> tuple:
+    """Getting zoho user id and client secret"""
+    if not os.path.exists(CRED_FILE):
         zid = os.getenv("ZOHO_CLIENT_ID")
         secret = os.getenv("ZOHO_CLIENT_SECRET")
     else:
-        with open(CRED_FILE, 'r') as cred:
+        with open(CRED_FILE, 'r',encoding="UTF-8") as cred:
             zid, secret = cred.readlines()
         zid = zid.strip()
         secret = secret.strip()
@@ -28,20 +27,23 @@ def get_creds() -> list:
 
 
 def save_to_file(txt):
-    with open(TOKEN_FILE, 'w') as token:
+    """Saving token json into TOKEN FILE"""
+    with open(TOKEN_FILE, 'w', encoding="UTF-8") as token:
         token.write(txt)
     return True
 
 
 def generate_token(code, redirect_uri):
+    """Generating token json using code, zid and secret"""
     client_id, client_secret = get_creds()
     auth_token_url = f"https://accounts.zoho.in/oauth/v2/token?code={code}&client_secret={client_secret}&redirect_uri={redirect_uri}&grant_type=authorization_code&client_id={client_id}"
-    resp = requests.request("POST", auth_token_url)
+    resp = requests.request("POST", auth_token_url, timeout=10)
     save_to_file(resp.text)
     return True
 
 
 def generate_code(redirect_uri):
+    """Generating offline code"""
     client_id = get_creds()[0]
     access_type = "offline"
     code_url = f"https://accounts.zoho.in/oauth/v2/auth?scope={SCOPES}&client_id={client_id}&response_type=code&access_type={access_type}&redirect_uri={redirect_uri}&state=register"
@@ -58,23 +60,25 @@ def generate_code(redirect_uri):
 
 @app.route("/<all_routes>/", methods=["GET", "POST"])
 def callback(all_routes):
+    """Mock callback uri"""
     code_resp = request.args
     code_resp = code_resp.to_dict(flat=False)
     if code_resp.get('code'):
         code = code_resp['code'][0]
         if generate_token(code, REDIRECT_URI):
-            return "File saved "
+            return f"{all_routes}: Token saved"
     return "NOT GENERATED"
-    
+
 
 @app.route('/')
 def index():
+    """Index Page for Mock URI"""
     code = generate_code(REDIRECT_URI)
     if code:
-        return "Trick oAuth Done"
+        msg = "Trick oAuth Done"
     else:
-        return "Code Generated"
-    
+        msg = "Code Generated"
+    return msg
 
 if __name__ == "__main__":
     os.environ['WERKZEUG_RUN_MAIN'] = 'true'
