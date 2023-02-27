@@ -81,5 +81,5 @@ def index():
     return msg
 
 if __name__ == "__main__":
-    os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+    # os.environ['WERKZEUG_RUN_MAIN'] = 'true'
     app.run("0.0.0.0", port=8000)
