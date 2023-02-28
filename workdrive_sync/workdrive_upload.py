@@ -1,12 +1,17 @@
-import json
-import os.path
+import os
 import sys
+import json
 
-from requests import request, get
+from requests import request
 
 CREDS_FILE = "zoho-cred.txt"
 TOKEN_FILE = "zoho-token.json"
 BASE_URL = "https://www.zohoapis.in/workdrive/api/v1"
+
+# Need this variables while running from pipeline.
+ZOHO_CLIENT_ID = os.getenv("ZOHO_CLIENT_ID")
+ZOHO_CLIENT_SECRET = os.getenv("ZOHO_CLIENT_SECRET")
+ZOHO_REFRESH_TOKEN = os.getenv("ZOHO_REFRESH_TOKEN")
 
 
 def get_creds(cred_file) -> tuple:
@@ -24,9 +29,14 @@ def get_refresh_token(token_file) -> str:
 
 
 def generate_auth_header() -> dict:
-    refresh_token = get_refresh_token(TOKEN_FILE)
-    creds = get_creds(CREDS_FILE)
-    url = f"https://accounts.zoho.in/oauth/v2/token?refresh_token={refresh_token}&client_secret={creds[1]}&grant_type=refresh_token&client_id={creds[0]}"
+
+    global TOKEN_FILE, CREDS_FILE
+    global ZOHO_CLIENT_ID, ZOHO_REFRESH_TOKEN, ZOHO_CLIENT_SECRET
+
+    if not ZOHO_CLIENT_ID and not ZOHO_CLIENT_SECRET and not ZOHO_REFRESH_TOKEN:
+        ZOHO_REFRESH_TOKEN = get_creds(CREDS_FILE)
+        ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET = get_refresh_token(TOKEN_FILE)
+    url = f"https://accounts.zoho.in/oauth/v2/token?refresh_token={ZOHO_REFRESH_TOKEN}&client_secret={ZOHO_CLIENT_SECRET}&grant_type=refresh_token&client_id={ZOHO_CLIENT_ID}"
     resp = request("POST", url, timeout=10)
     token = json.loads(resp.text)
     auth_token = token.get("access_token")
