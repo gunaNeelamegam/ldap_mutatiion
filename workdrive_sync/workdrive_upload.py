@@ -167,7 +167,7 @@ def create_subfolder(parent_id, sub_dirs, header):
     return final_dir_id
 
 
-if __name__ == "__main__":
+def main():
 
     if len(sys.argv) != 4:
         print(f"Usage: {sys.argv[0]} <team-name> <remote-path> <local-path>")
@@ -207,6 +207,10 @@ if __name__ == "__main__":
             print(f"Workdrive Link: {file_link}")
 
     except Exception as e:
-        print("PLEASE PROVIDE THE ARUGUMENT ...  !")
+        print(f"ERROR: {e}")
+
     finally:
         sys.exit(0)
+
+if __name__ == "__main__":
+    main()
