@@ -171,7 +171,7 @@ def main():
 
     if len(sys.argv) != 4:
         print(f"Usage: {sys.argv[0]} <team-name> <remote-path> <local-path>")
-        exit(1)
+        return
 
     team = sys.argv[1]
     remote_path = sys.argv[2]

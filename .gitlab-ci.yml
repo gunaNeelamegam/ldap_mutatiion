@@ -1,0 +1,35 @@
+image: python:3.8
+
+before_script:
+  - pip install --upgrade pip
+  - pip install setuptools twine
+
+stages:
+  - build
+  - test
+  - deploy
+
+package:
+  stage: build
+  script:
+    - python3 setup.py sdist bdist_wheel
+    - ls -l dist/*
+  artifacts:
+    paths:
+      - "dist/*"
+    expire_in: 2 days
+
+test:
+  stage: test
+  script:
+    - pip install .
+    - workdrive-upload
+
+release:
+  stage: deploy
+  script:
+    - export TWINE_PASSWORD=${CI_JOB_TOKEN}
+    - export TWINE_USERNAME=gitlab-ci-token
+    - python -m twine upload --verbose --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+  only:
+    - tags
